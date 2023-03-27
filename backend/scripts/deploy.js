@@ -1,14 +1,13 @@
 const hre = require("hardhat");
 
 async function main() {
-  const SimpleStorage = await hre.ethers.getContractFactory("SimpleStorage");
-  const simpleStorage = await SimpleStorage.deploy();
+  const ZoneNFT = await hre.ethers.getContractFactory("ZoneNFT");
+  const zoneNFT = await ZoneNFT.deploy();
 
-  await simpleStorage.deployed();
-  await simpleStorage.mint(1, 1, { value: ethers.utils.parseEther(`0.05`) })
+  await zoneNFT.deployed();
 
   console.log(
-    `SimpleStorage deployed to ${simpleStorage.address}`
+    `zoneNFT deployed to ${zoneNFT.address}`
   );
 }
 

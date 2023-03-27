@@ -2,17 +2,54 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Layout from '@/components/Layout/Layout'
 import { useAccount, useProvider, useSigner } from 'wagmi'
-import { Text } from '@chakra-ui/react'
+import { Text, Flex, Button } from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
 } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import { ethers } from 'ethers'
+import { contractAddress, abi } from "../public/constants"
+
+
 
 export default function Home() {
 
   const { address, isConnected } = useAccount()
+  const [nftList, setNftList] = useState([]);
+  const { data: signer } = useSigner()
+  console.log(nftList)
+
+  async function fetchNfts() {
+    if (isConnected) {
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+      const nfts = await contract.getAllNFTs();
+
+      setNftList(nfts);
+    }
+  }
+
+  useEffect(() => {
+    fetchNfts();
+  }, [address, signer, nftList]);
+
+  async function buyZoneNFT(id, price) {
+    if (isConnected) {
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+      await contract.buyZoneNFT(parseInt(id), { value: price });
+    }
+  }
+
+  async function getUri(id) {
+    if (isConnected) {
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+      const uri = await contract.tokenURI(parseInt(id));
+
+      return uri.to_s;
+    }
+  }
 
   return (
     <>
@@ -27,7 +64,25 @@ export default function Home() {
           <div align="center">
             Welcome to Punk Hazard Land !
             < Image src="/PunkHazard.jpeg" alt="img" width={400} height={400} style={{ margin: 10 }} />
+            <div className="App">
+              <h1>My NFTs</h1>
+              {nftList.map((nft) => (
+                <Flex className='flex ml-20 mt-20' key={nft[4]}>
+                  < Image src={getUri(nft[4])} alt="img" width={400} height={400} style={{ margin: 10 }} />
+
+                  <p>Token id: #{nft[4]}</p>
+                  <p>Token location: {nft[0]}</p>
+                  {nft[1] && address != nft[3] ? <Button onClick={() => buyZoneNFT(nft[4], nft[2])}>BUY</Button> : "not for sale"}
+                  <p>Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p>
+                  {address != nft[3] ?
+                    ""
+                    : <div className="text-emerald-700">You are the owner of this NFT</div>
+                  }
+                </Flex>
+              ))}
+            </div>
           </div>
+
         ) : (
           <Alert status='warning' width="50%">
             <AlertIcon />
