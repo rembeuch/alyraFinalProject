@@ -20,7 +20,6 @@ export default function Home() {
   const { address, isConnected } = useAccount()
   const [nftList, setNftList] = useState([]);
   const { data: signer } = useSigner()
-  console.log(nftList)
 
   async function fetchNfts() {
     if (isConnected) {
@@ -42,12 +41,16 @@ export default function Home() {
     }
   }
 
-  async function getUri(id) {
+  function getUri(location) {
     if (isConnected) {
-      const contract = new ethers.Contract(contractAddress, abi, signer)
-      const uri = await contract.tokenURI(parseInt(id));
+      console.log(location[5])
+      if (location[5] === "A") {
+        return '0'
+      }
+      else {
+        return "1"
+      }
 
-      return uri.to_s;
     }
   }
 
@@ -68,8 +71,7 @@ export default function Home() {
               <h1>My NFTs</h1>
               {nftList.map((nft) => (
                 <Flex className='flex ml-20 mt-20' key={nft[4]}>
-                  < Image src={getUri(nft[4])} alt="img" width={400} height={400} style={{ margin: 10 }} />
-
+                  < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/${getUri(nft[0])}.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
                   <p>Token id: #{nft[4]}</p>
                   <p>Token location: {nft[0]}</p>
                   {nft[1] && address != nft[3] ? <Button onClick={() => buyZoneNFT(nft[4], nft[2])}>BUY</Button> : "not for sale"}

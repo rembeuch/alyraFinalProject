@@ -14,44 +14,15 @@ const Header = () => {
     const { data: signer } = useSigner()
     const provider = useProvider()
     const contract = new ethers.Contract(contractAddress, abi, provider)
-    const [balance, setBalance] = useState()
     const { address, isConnected } = useAccount()
-    const [isOwner] = useOwnerAddress(address, contract);
 
 
-    useEffect(() => {
-        getBalance()
-    }, [balance]);
-
-    const getBalance = async () => {
-        const contract = new ethers.Contract(contractAddress, abi, provider)
-
-        const balance = await provider.getBalance(contractAddress)
-        setBalance(ethers.utils.formatEther(balance))
-
-    }
-
-
-    const withdraw = async () => {
-        const contract = new ethers.Contract(contractAddress, abi, signer)
-        try {
-            await contract.withdraw()
-            setBalance(0)
-            // router.push('/getNumber')
-
-        }
-        catch (e) {
-            console.log(e.reason)
-        }
-    }
 
     return (
         <Flex justifyContent="space-between" alignItems="center" height="10vh" width="100%" p="2rem">
             <Text fontWeight="bold">Logo</Text>
-            {isOwner ? (<button className='withdraw' onClick={withdraw}>WITHDRAW {balance} eth</button>) : ("")}
             <Flex width="30%" justifyContent="space-between" alignItems="center">
                 <Text><Link href="/">Home</Link></Text>
-                <Text><Link href="/mint">Mint a Land</Link></Text>
                 <Text><Link href="/collection">My Collection</Link></Text>
             </Flex>
             <ConnectButton />

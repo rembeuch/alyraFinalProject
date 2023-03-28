@@ -22,6 +22,11 @@ export default function Collection() {
   const { address, isConnected } = useAccount()
   const provider = useProvider()
   const { data: signer } = useSigner()
+  const [price, setPrice] = useState(0);
+
+  const handleChange = (event) => {
+    setPrice(event.target.value);
+  };
 
   async function fetchNfts() {
     if (isConnected) {
@@ -34,12 +39,12 @@ export default function Collection() {
 
   useEffect(() => {
     fetchNfts();
-  }, [address, signer, nftList]);
+  }, [address, nftList]);
 
-  async function setForSale(id) {
+  async function setForSale(id, price) {
     if (isConnected) {
       const contract = new ethers.Contract(contractAddress, abi, signer)
-      await contract.setForSale(parseInt(id), 1);
+      await contract.setForSale(parseInt(id), price);
     }
   }
 
@@ -64,12 +69,21 @@ export default function Collection() {
           <div className="App">
             <h1>My NFTs</h1>
             {nftList.map((nft) => (
-              <div >
+              <div key={nft[4]}>
                 {/* <img src={nft.uri} alt="nft" /> */}
                 <p>Token location: {nft[0]}</p>
                 <p>Token for Sale: {nft[1].toString()}
                   {nft[1] == false ? (
-                    <Button onClick={() => setForSale(nft[4])}>Set ForSale</Button>) :
+                    <div>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={price}
+                        onChange={handleChange}
+                      />
+                      <Button onClick={() => setForSale(nft[4], price * 100)}>Set ForSale</Button>
+                    </div>) :
                     (<Button onClick={() => unSale(nft[4])}>Set UnSale</Button>)}
                 </p>
                 <p>Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p>

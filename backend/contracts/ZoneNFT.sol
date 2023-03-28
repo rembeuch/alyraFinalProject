@@ -77,7 +77,7 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         address owner = ownerOf(tokenId);
         require(msg.sender == owner, "Only the owner can set for sale");
         _zones[tokenId].forSale = true;
-        _zones[tokenId].price = price * 1 ether;
+        _zones[tokenId].price = (price * 1 ether) / 100;
     }
 
     function unSale(uint256 tokenId) public {
