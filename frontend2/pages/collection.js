@@ -22,7 +22,7 @@ export default function Collection() {
   const { address, isConnected } = useAccount()
   const provider = useProvider()
   const { data: signer } = useSigner()
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(0.01);
 
   const handleChange = (event) => {
     setPrice(event.target.value);
@@ -78,7 +78,7 @@ export default function Collection() {
                       <input
                         type="number"
                         step="0.01"
-                        min="0"
+                        min="0.01"
                         value={price}
                         onChange={handleChange}
                       />

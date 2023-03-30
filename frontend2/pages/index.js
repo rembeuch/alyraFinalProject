@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Layout from '@/components/Layout/Layout'
 import { useAccount, useProvider, useSigner } from 'wagmi'
-import { Text, Flex, Button } from '@chakra-ui/react'
+import { Text, Flex, Button, Card } from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
@@ -41,19 +41,6 @@ export default function Home() {
     }
   }
 
-  function getUri(location) {
-    if (isConnected) {
-      console.log(location[5])
-      if (location[5] === "A") {
-        return '0'
-      }
-      else {
-        return "1"
-      }
-
-    }
-  }
-
   return (
     <>
       <Head>
@@ -65,26 +52,47 @@ export default function Home() {
       <Layout>
         {isConnected ? (
           <div align="center">
-            Welcome to Punk Hazard Land !
-            < Image src="/PunkHazard.jpeg" alt="img" width={400} height={400} style={{ margin: 10 }} />
-            <div className="App">
-              <h1>My NFTs</h1>
-              {nftList.map((nft) => (
-                <Flex className='flex ml-20 mt-20' key={nft[4]}>
-                  < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/${getUri(nft[0])}.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
-                  <p>Token id: #{nft[4]}</p>
+            Welcome to Punk Hazard !
+            < Image src="/PunkHazard.jpeg" alt="img" width={600} height={200} style={{ margin: 10 }} />
+            <div>
+              <hr></hr>
+              <h1>Zone A</h1>
+              < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/0.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {nftList.slice(0, 4).map((nft) => (
+                <Card style={{ margin: 20, padding: 10, border: `10px solid ${nft[1] ? "green" : "red"}` }} key={nft[4]}>
+                  id#{nft[4]}
                   <p>Token location: {nft[0]}</p>
-                  {nft[1] && address != nft[3] ? <Button onClick={() => buyZoneNFT(nft[4], nft[2])}>BUY</Button> : "not for sale"}
-                  <p>Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p>
+                  {nft[1] ? <p><Button onClick={() => buyZoneNFT(nft[4], nft[2])}>BUY</Button> Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p> : "not for sale"}
+
                   {address != nft[3] ?
-                    ""
+                    <p> owner: 0x...{nft[3].slice(-4)}</p>
                     : <div className="text-emerald-700">You are the owner of this NFT</div>
                   }
-                </Flex>
+                </Card>
+              ))}
+            </div>
+            <div>
+              <hr></hr>
+              <h1>Zone B</h1>
+              < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/1.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              {nftList.slice(4, 8).map((nft) => (
+                <Card style={{ margin: 20, padding: 10, border: `10px solid ${nft[1] ? "green" : "red"}` }} key={nft[4]}>
+                  id#{nft[4]}
+                  <p>Token location: {nft[0]}</p>
+                  {nft[1] ? <p><Button onClick={() => buyZoneNFT(nft[4], nft[2])}>BUY</Button> Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p> : "not for sale"}
+
+                  {address != nft[3] ?
+                    <p> owner: 0x...{nft[3].slice(-4)}</p>
+                    : <div className="text-emerald-700">You are the owner of this NFT</div>
+                  }
+                </Card>
               ))}
             </div>
           </div>
-
         ) : (
           <Alert status='warning' width="50%">
             <AlertIcon />

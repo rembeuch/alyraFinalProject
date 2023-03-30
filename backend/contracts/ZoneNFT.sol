@@ -21,6 +21,8 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
 
     mapping(uint256 => Zone) public _zones;
 
+    event TokenBuy(address seller, address buyer, uint tokenId, uint price);
+
     constructor() ERC721("ZoneNFT", "ZNFT") {
         createZone(
             "https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/0.jpeg",
@@ -59,7 +61,7 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
     function createZone(
         string memory tokenURI,
         string memory location
-    ) private {
+    ) private onlyOwner {
         _tokenIdCounter.increment();
         uint256 newTokenId = _tokenIdCounter.current();
         _mint(msg.sender, newTokenId);
@@ -76,6 +78,7 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
     function setForSale(uint256 tokenId, uint price) public {
         address owner = ownerOf(tokenId);
         require(msg.sender == owner, "Only the owner can set for sale");
+        require(_zones[tokenId].forSale == false, "Already set");
         _zones[tokenId].forSale = true;
         _zones[tokenId].price = (price * 1 ether) / 100;
     }
@@ -83,15 +86,12 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
     function unSale(uint256 tokenId) public {
         address owner = ownerOf(tokenId);
         require(msg.sender == owner, "Only the owner can set for sale");
+        require(_zones[tokenId].forSale == true, "Already set");
         _zones[tokenId].forSale = false;
     }
 
-    function isForSale(uint256 tokenId) public view returns (bool) {
-        return _zones[tokenId].forSale;
-    }
-
     function buyZoneNFT(uint256 tokenId) public payable {
-        require(msg.sender != ownerOf(tokenId));
+        require(msg.sender != ownerOf(tokenId), "You are the owner");
         require(_zones[tokenId].forSale, "Token is not for sale");
         require(
             msg.value >= _zones[tokenId].price,
@@ -99,13 +99,13 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         );
         address owner = ownerOf(tokenId);
 
-        // Transfert de propriété
         _transfer(owner, msg.sender, tokenId);
         approve(address(this), tokenId);
-        // Paiement au vendeur
         (bool success, ) = owner.call{value: msg.value}("");
         require(success, "Transfer failed.");
         _zones[tokenId].forSale = false;
+        _zones[tokenId].seller = msg.sender;
+        emit TokenBuy(owner, msg.sender, tokenId, _zones[tokenId].price);
     }
 
     function getAllNFTs() public view returns (Zone[] memory) {
@@ -113,15 +113,12 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         Zone[] memory tokens = new Zone[](nftCount);
         uint currentIndex = 0;
         uint currentId;
-        //at the moment currentlyListed is true for all, if it becomes false in the future we will
-        //filter out currentlyListed == false over here
         for (uint i = 0; i < nftCount; i++) {
             currentId = i + 1;
             Zone storage currentItem = _zones[currentId];
             tokens[currentIndex] = currentItem;
             currentIndex += 1;
         }
-        //the array 'tokens' has the list of all NFTs in the marketplace
         return tokens;
     }
 
@@ -130,14 +127,12 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         uint itemCount = 0;
         uint currentIndex = 0;
         uint currentId;
-        //Important to get a count of all the NFTs that belong to the user before we can make an array for them
         for (uint i = 0; i < totalItemCount; i++) {
             if (ownerOf(i + 1) == msg.sender) {
                 itemCount += 1;
             }
         }
 
-        //Once you have the count of relevant NFTs, create an array then store all the NFTs in it
         Zone[] memory items = new Zone[](itemCount);
         for (uint i = 0; i < totalItemCount; i++) {
             if (ownerOf(i + 1) == msg.sender) {
