@@ -133,6 +133,22 @@ describe("test buyZone ", function () {
     expect(parseFloat(ownerBalance)).to.equal(parseFloat(oldownerBalance) + parseFloat(zonePrice));
   });
 
+  it.only('should emit tokenBuy event', async () => {
+    let zone1 = await contract._zones(1);
+    let price = ethers.BigNumber.from(zone1[2]);
+    [ownerAddress] = await ethers.getSigners();
+    owner = await ownerAddress.getAddress()
+    const [_, buyerAddress] = await ethers.getSigners();
+    const contractWithBuyer = contract.connect(buyerAddress);
+    let buyer = await buyerAddress.getAddress()
+    const zonePrice = ethers.BigNumber.from("1000000000000000000");
+    const buyZoneNFT = await contractWithBuyer.buyZoneNFT(1, { value: zonePrice });
+
+    await expect(buyZoneNFT)
+      .to.emit(contractWithBuyer, 'TokenBuy')
+      .withArgs(owner, buyer, 1, price);
+  });
+
   it('should revert if You are the owner', async () => {
     const zonePrice = ethers.BigNumber.from("1000000000000000000");
     await expectRevert(
