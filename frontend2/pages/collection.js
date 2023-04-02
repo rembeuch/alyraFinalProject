@@ -2,7 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Layout from '@/components/Layout/Layout'
 import { useAccount, useSigner, useProvider } from 'wagmi'
-import { Text, Flex, Button } from '@chakra-ui/react'
+import { Text, Flex, Button, Card } from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
@@ -55,6 +55,15 @@ export default function Collection() {
     }
   }
 
+  function imageFilter(location) {
+    if (location[5] === "A") {
+      return 0
+    }
+    else {
+      return 1
+    }
+  }
+
 
   return (
     <>
@@ -70,23 +79,50 @@ export default function Collection() {
             <h1>My NFTs</h1>
             {nftList.map((nft) => (
               <div key={nft[4]}>
-                {/* <img src={nft.uri} alt="nft" /> */}
-                <p>Token location: {nft[0]}</p>
-                <p>Token for Sale: {nft[1].toString()}
-                  {nft[1] == false ? (
-                    <div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        value={price}
-                        onChange={handleChange}
-                      />
-                      <Button onClick={() => setForSale(nft[4], price * 100)}>Set ForSale</Button>
-                    </div>) :
-                    (<Button onClick={() => unSale(nft[4])}>Set UnSale</Button>)}
-                </p>
+                < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/${imageFilter(nft[0])}.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
+                <Card style={{ margin: 20, padding: 10, border: `10px solid ${nft[1] ? "green" : "red"}` }} key={nft[4]}>
+                  id#{nft[4]}
+                  <p>Token location: {nft[0]}</p>
+
+                  {address != nft[3] ?
+                    <p> owner: 0x...{nft[3].slice(-4)}</p>
+                    : <div className="text-emerald-700">You are the owner of this NFT</div>
+                  }
+                  <p>Token for Sale: {nft[1].toString()}
+                    {nft[1] == false ? (
+                      <div>
+                        <input
+                          style={{ border: "1px solid black" }}
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={price}
+                          onChange={handleChange}
+                        />
+
+                        <Button style={{
+                          color: "#F9DC5C",
+                          backgroundColor: "green",
+                          padding: 10,
+                          margin: 10,
+                          transition: "background-color 0.3s ease",
+                          borderRadius: 5,
+                          textDecoration: "none"
+                        }} onClick={() => setForSale(nft[4], price * 100)}>Set ForSale</Button>
+                      </div>) :
+                      (<Button style={{
+                        color: "#F9DC5C",
+                        backgroundColor: "red",
+                        padding: 10,
+                        margin: 10,
+                        transition: "background-color 0.3s ease",
+                        borderRadius: 5,
+                        textDecoration: "none"
+                      }} onClick={() => unSale(nft[4])}>Set UnSale</Button>)}
+                  </p>
+                </Card>
                 <p>Token Price: {ethers.utils.formatEther(nft[2].toString())} eth</p>
+                <hr></hr>
               </div>
             ))}
           </div>

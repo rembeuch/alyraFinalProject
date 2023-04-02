@@ -9,6 +9,8 @@ async function main() {
   console.log(
     `zoneNFT deployed to ${zoneNFT.address}`
   );
+  await zoneNFT.setForSale(1, 1);
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
