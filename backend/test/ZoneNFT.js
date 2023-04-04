@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 
 let contract;
@@ -133,7 +133,7 @@ describe("test buyZone ", function () {
     expect(parseFloat(ownerBalance)).to.equal(parseFloat(oldownerBalance) + parseFloat(zonePrice));
   });
 
-  it.only('should emit tokenBuy event', async () => {
+  it('should emit tokenBuy event', async () => {
     let zone1 = await contract._zones(1);
     let price = ethers.BigNumber.from(zone1[2]);
     [ownerAddress] = await ethers.getSigners();
