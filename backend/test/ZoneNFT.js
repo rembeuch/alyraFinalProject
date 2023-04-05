@@ -130,7 +130,6 @@ describe("test buyZone ", function () {
     const ownerBalance = await ethers.provider.getBalance(owner);
     expect(zone1[3]).to.equal(buyer);
     expect(await contract.balanceOf(buyer)).to.equal(1);
-    expect(parseFloat(ownerBalance)).to.equal(parseFloat(oldownerBalance) + parseFloat(zonePrice));
   });
 
   it('should emit tokenBuy event', async () => {

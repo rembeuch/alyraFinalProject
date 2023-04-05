@@ -2,7 +2,16 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Layout from '@/components/Layout/Layout'
 import { useAccount, useProvider, useSigner } from 'wagmi'
-import { Text, Flex, Button, Card } from '@chakra-ui/react'
+import {
+  Text, Flex, Button, Card, Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider
+} from '@chakra-ui/react'
 import {
   Alert,
   AlertIcon,
@@ -19,7 +28,9 @@ export default function Home() {
 
   const { address, isConnected } = useAccount()
   const [nftList, setNftList] = useState([]);
-  const { data: signer } = useSigner()
+  const { data: signer } = useSigner();
+  const [buy, setBuy] = useState([]);
+
 
   async function fetchNfts() {
     if (isConnected) {
@@ -32,7 +43,26 @@ export default function Home() {
 
   useEffect(() => {
     fetchNfts();
+    tokenBuyEvent()
   }, [address, signer, nftList]);
+
+
+  async function tokenBuyEvent() {
+    if (isConnected) {
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+
+      const tokenBuyFilter = contract.filters.TokenBuy();
+
+      const buyEvents = await contract.queryFilter(tokenBuyFilter);
+
+      const buyArray = buyEvents.map((event) => {
+        const { seller, buyer, tokenId, price } = event.args;
+        return [seller, buyer, tokenId, price];
+      });
+
+      setBuy(buyArray);
+    }
+  }
 
   async function buyZoneNFT(id, price) {
     if (isConnected) {
@@ -40,6 +70,8 @@ export default function Home() {
       await contract.buyZoneNFT(parseInt(id), { value: price });
     }
   }
+
+
 
   return (
     <>
@@ -70,6 +102,24 @@ export default function Home() {
                     <p> owner: 0x...{nft[3].slice(-4)}</p>
                     : <div className="text-emerald-700">You are the owner of this NFT</div>
                   }
+                  <div>
+                    <Menu placeholder="past sell">
+                      <MenuButton as={Button} >
+                        Past transfers
+                      </MenuButton>
+                      <MenuList>
+
+                        {buy.filter(item => item[2].toString() === nft[4].toString()).map((item) => (
+                          <MenuItem key={item[2]}>
+                            <p>Seller:0x...{item[0].slice(-4)} / </p>
+                            <p> Buyer:0x...{item[1].slice(-4)} / </p>
+                            <p> Token ID: {item[2].toString()} / </p>
+                            <p> Price: {ethers.utils.formatEther(item[3].toString())} eth</p>
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                  </div>
                 </Card>
               ))}
             </div>

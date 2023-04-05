@@ -1,4 +1,4 @@
-export const contractAddress = "0x44beca28d0542d0bE6C8130990B4bb803d820d99"
+export const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 export const abi = [
   {
     "inputs": [],
@@ -72,6 +72,37 @@ export const abi = [
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenBuy",
     "type": "event"
   },
   {
@@ -301,25 +332,6 @@ export const abi = [
       }
     ],
     "name": "isApprovedForAll",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "isForSale",
     "outputs": [
       {
         "internalType": "bool",
