@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract ZoneNFT is ERC721URIStorage, Ownable {
+contract ZoneNFT is ERC721URIStorage, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
 
@@ -90,7 +91,7 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         _zones[tokenId].forSale = false;
     }
 
-    function buyZoneNFT(uint256 tokenId) public payable {
+    function buyZoneNFT(uint256 tokenId) public payable nonReentrant {
         require(msg.sender != ownerOf(tokenId), "You are the owner");
         require(_zones[tokenId].forSale, "Token is not for sale");
         require(
@@ -99,10 +100,10 @@ contract ZoneNFT is ERC721URIStorage, Ownable {
         );
         address owner = ownerOf(tokenId);
 
-        _transfer(owner, msg.sender, tokenId);
-        approve(address(this), tokenId);
         (bool success, ) = owner.call{value: msg.value}("");
         require(success, "Transfer failed.");
+        _transfer(owner, msg.sender, tokenId);
+        approve(address(this), tokenId);
         _zones[tokenId].forSale = false;
         _zones[tokenId].seller = msg.sender;
         emit TokenBuy(owner, msg.sender, tokenId, _zones[tokenId].price);

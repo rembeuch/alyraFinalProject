@@ -139,6 +139,24 @@ export default function Home() {
                     <p> owner: 0x...{nft[3].slice(-4)}</p>
                     : <div className="text-emerald-700">You are the owner of this NFT</div>
                   }
+                  <div>
+                    <Menu placeholder="past sell">
+                      <MenuButton as={Button} >
+                        Past transfers
+                      </MenuButton>
+                      <MenuList>
+
+                        {buy.filter(item => item[2].toString() === nft[4].toString()).map((item) => (
+                          <MenuItem key={item[2]}>
+                            <p>Seller:0x...{item[0].slice(-4)} / </p>
+                            <p> Buyer:0x...{item[1].slice(-4)} / </p>
+                            <p> Token ID: {item[2].toString()} / </p>
+                            <p> Price: {ethers.utils.formatEther(item[3].toString())} eth</p>
+                          </MenuItem>
+                        ))}
+                      </MenuList>
+                    </Menu>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -148,8 +166,9 @@ export default function Home() {
             <AlertIcon />
             Please, connect your Wallet!
           </Alert>
-        )}
-      </Layout>
+        )
+        }
+      </Layout >
     </>
   )
 }
