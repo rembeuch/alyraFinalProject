@@ -18,6 +18,8 @@ import Link from 'next/link';
 export default function Collection() {
 
   const [nftList, setNftList] = useState([]);
+  const [uri, setUri] = useState([]);
+
 
   const { address, isConnected } = useAccount()
   const provider = useProvider()
@@ -39,6 +41,7 @@ export default function Collection() {
 
   useEffect(() => {
     fetchNfts();
+    getUrl()
   }, [address, nftList]);
 
   async function setForSale(id, price) {
@@ -55,12 +58,15 @@ export default function Collection() {
     }
   }
 
-  function imageFilter(location) {
-    if (location[5] === "A") {
-      return 0
-    }
-    else {
-      return 1
+  async function getUrl() {
+    if (isConnected) {
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+      const url = []
+      for (let i = 0; i < nftList.length; i++) {
+        let uri = await contract.tokenURI(nftList[i][4])
+        url.push(uri);
+      }
+      setUri(url)
     }
   }
 
@@ -77,9 +83,9 @@ export default function Collection() {
         {isConnected ? (
           <div className="App">
             <h1>My NFTs</h1>
-            {nftList.map((nft) => (
-              <div key={nft[4]}>
-                < Image src={`https://gateway.pinata.cloud/ipfs/QmUZ767FRT46NRMGQNKTqSSMuK73o6T5rKX3iA9u91quXk/${imageFilter(nft[0])}.jpeg`} alt="img" width={400} height={400} style={{ margin: 10 }} />
+            {nftList.map((nft, index) => (
+              < div key={nft[4]} >
+                < Image src={uri[index]} alt="img" width={400} height={400} style={{ margin: 10 }} />
                 <Card style={{ margin: 20, padding: 10, border: `10px solid ${nft[1] ? "green" : "red"}` }} key={nft[4]}>
                   id#{nft[4]}
                   <p>Token location: {nft[0]}</p>
